@@ -25,10 +25,27 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Function to update the database with transaction reference
-        async function updateDatabase() {
+        // Function to store the transaction reference in localStorage
+        function storeTransactionReference() {
+            const params = new URLSearchParams(window.location.search);
+            const reference = params.get('reference');
+
+            // Sanitize the reference (extract numbers only)
+            const numbersOnly = reference ? reference.match(/\d+/g)?.join('') : null;
+
+            if (numbersOnly) {
+                localStorage.setItem("transactionNumbers", numbersOnly);
+                console.log("Transaction reference stored:", numbersOnly);
+            } else {
+                console.warn("No valid transaction reference found in URL.");
+            }
+
+            return numbersOnly;
+        }
+
+        // Function to update the Firebase database
+        async function updateDatabase(transactionReference) {
             const email = localStorage.getItem("userEmail");
-            const transactionReference = localStorage.getItem("transactionNumbers");
 
             if (!email || !transactionReference) {
                 document.getElementById("status").innerText = 
@@ -55,14 +72,17 @@
             }
         }
 
-        // Run updateDatabase function when the page loads
+        // Run both functions when the page loads
         document.addEventListener("DOMContentLoaded", () => {
-            updateDatabase();
+            const transactionReference = storeTransactionReference();
+            if (transactionReference) {
+                updateDatabase(transactionReference);
+            }
         });
     </script>
 </head>
 <body>
     <h1>Update Firebase with Transaction Reference</h1>
-    <p id="status">Updating...</p>
+    <p id="status">Processing...</p>
 </body>
 </html>
