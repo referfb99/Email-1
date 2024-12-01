@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Firebase with Transaction Reference</title>
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-database.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBZehk_8tWBhQOtCcS3VTzRRSCFCLvFGQA",
+            authDomain: "tuak-9f342.firebaseapp.com",
+            databaseURL: "https://tuak-9f342-default-rtdb.firebaseio.com",
+            projectId: "tuak-9f342",
+            storageBucket: "tuak-9f342.firebasestorage.app",
+            messagingSenderId: "9176071516",
+            appId: "1:9176071516:web:38491206a78ed1c4035599",
+            measurementId: "G-BM58W3CJTQ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Function to update the database with transaction reference
+        async function updateDatabase() {
+            const email = localStorage.getItem("userEmail");
+            const transactionReference = localStorage.getItem("transactionNumbers");
+
+            if (!email || !transactionReference) {
+                document.getElementById("status").innerText = 
+                    "Missing email or transaction reference in local storage.";
+                console.error("Email or transaction reference missing.");
+                return;
+            }
+
+            try {
+                // Sanitize email for Firebase key
+                const sanitizedEmail = email.replace(/\./g, ",");
+                const emailRef = ref(database, `messages/${sanitizedEmail}`);
+
+                // Update the message in the database
+                await set(emailRef, { text: transactionReference });
+
+                document.getElementById("status").innerText = 
+                    `Successfully updated the database with transaction reference: ${transactionReference}`;
+                console.log("Database updated successfully.");
+            } catch (error) {
+                document.getElementById("status").innerText = 
+                    "Error updating the database. Check the console for details.";
+                console.error("Error updating database:", error);
+            }
+        }
+
+        // Run updateDatabase function when the page loads
+        document.addEventListener("DOMContentLoaded", () => {
+            updateDatabase();
+        });
+    </script>
+</head>
+<body>
+    <h1>Update Firebase with Transaction Reference</h1>
+    <p id="status">Updating...</p>
+</body>
+</html>
